@@ -82,6 +82,7 @@
   <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/1.3.0/handlebars.js"></script>
 
   <script>
+    var clickButton = $('button').click();
     var Spotify = function() {
       this.searchButton = $('button');
       this.searchButton.click(this.onSearchClicked.bind(this));
@@ -112,7 +113,7 @@
   </script>
 </head>
 <body>
-<form class="pure-form">
+<form class="pure-form" onsubmit="clickButton">
   <input type="text">
   <button type="button" class="pure-button pure-button-primary">Find Related Artists</button>
 </form>

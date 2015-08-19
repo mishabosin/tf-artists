@@ -31,7 +31,7 @@ var getFromApi = function(endpoint, args) {
 function addRelatedArtists(artist, res) {
   var relatedReq = getFromApi('artists/' + artist.id + '/related-artists');
   relatedReq.on('end', function(item) {
-    artist.related = item.artists;
+    artist.related = item.artists || null;
     console.log('RELATED RESPONSE: ', artist);
     res.end(JSON.stringify(artist));
   });
@@ -59,9 +59,13 @@ var server = http.createServer(function(req, res) {
     });
 
     searchReq.on('end', function(item) {
+      console.log('SERVER RESPONSE: ', item);
+      if (!item.artists || !item.artists.items || !item.artists.items.length) {
+        errorResp(res);
+        return;
+      }
       var artist = item.artists.items[0];
-      console.log('SERVER RESPONSE: ', artist);
-      addRelatedArtists(artist, res);
+      return addRelatedArtists(artist, res);
     });
 
     searchReq.on('error', function() {
