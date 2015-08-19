@@ -28,6 +28,25 @@ var getFromApi = function(endpoint, args) {
   return emitter;
 };
 
+function addRelatedArtists(artist, res) {
+  var relatedReq = getFromApi('artists/' + artist.id + '/related-artists');
+  relatedReq.on('end', function(item) {
+    artist.related = item.artists;
+    console.log('RELATED RESPONSE: ', artist);
+    res.end(JSON.stringify(artist));
+  });
+
+  relatedReq.on('error', function() {
+    console.log('Related search error');
+    errorResp(res);
+  });
+}
+
+function errorResp(res) {
+  res.statusCode = 404;
+  res.end();
+}
+
 var fileServer = new nodeStatic.Server('./public');
 var server = http.createServer(function(req, res) {
   res.setHeader('Content-Type', 'application/json');
@@ -42,13 +61,12 @@ var server = http.createServer(function(req, res) {
     searchReq.on('end', function(item) {
       var artist = item.artists.items[0];
       console.log('SERVER RESPONSE: ', artist);
-      res.end(JSON.stringify(artist));
+      addRelatedArtists(artist, res);
     });
 
     searchReq.on('error', function() {
-      res.statusCode = 404;
-      console.log('Error');
-      res.end();
+      console.log('Server error');
+      errorResp(res);
     });
   }
   else {
